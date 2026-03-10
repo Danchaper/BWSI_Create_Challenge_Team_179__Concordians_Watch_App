@@ -22,9 +22,19 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.wear.compose.material.MaterialTheme
 import androidx.wear.compose.material.Text
 import androidx.wear.compose.material.TimeText
+import androidx.wear.compose.material3.FilledIconButton
 import androidx.wear.tooling.preview.devices.WearDevices
 import com.example.bwsicreatechallenge179_watchapp.R
 import com.example.bwsicreatechallenge179_watchapp.presentation.theme.BWSICreateChallenge179WatchAppTheme
+import android.R.attr
+import androidx.compose.foundation.layout.Row
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.res.painterResource
+import androidx.wear.compose.material.Icon
+import androidx.wear.compose.material3.IconButton
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -67,6 +77,34 @@ fun Greeting(greetingName: String) {
 
 @Preview(device = WearDevices.SMALL_ROUND, showSystemUi = true)
 @Composable
+fun TimerText() {
+    var currentTime = "00:00:00"
+    Box {
+        val modifier = Modifier.fillMaxSize()
+        val contentAlignment = Alignment.Center
+        Row {
+            Text(currentTime)
+        }
+    }
+}
+@Composable
+fun ToggleIconButtonExample() {
+    // isToggled initial value should be read from a view model or persistent storage.
+    var isToggled by rememberSaveable { mutableStateOf(false) }
+
+    IconButton(
+        onClick = { isToggled = !isToggled }
+    ) {
+        Icon(
+            painter = if (isToggled) painterResource(R.drawable.favorite_filled) else painterResource(R.drawable.favorite),
+            contentDescription = if (isToggled) "Selected icon button" else "Unselected icon button."
+        )
+    }
+}
+
+
+
+@Composable
 fun DefaultPreview() {
-    WearApp("Preview Android")
+    WearApp("dan")
 }

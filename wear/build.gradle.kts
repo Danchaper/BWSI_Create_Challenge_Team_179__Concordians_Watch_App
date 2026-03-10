@@ -56,4 +56,30 @@ dependencies {
     androidTestImplementation(libs.androidx.compose.ui.test.junit4)
     debugImplementation(libs.androidx.compose.ui.tooling)
     debugImplementation(libs.androidx.compose.ui.test.manifest)
+
+    val composeBom = platform("androidx.compose:compose-bom:2026.02.01")
+
+    // General compose dependencies
+    implementation(composeBom)
+    // Other compose dependencies
+
+    // Compose for Wear OS dependencies
+    implementation("androidx.wear.compose:compose-material3:1.5.6")
+
+    // Foundation is additive, so you can use the mobile version in your Wear OS app.
+    implementation("androidx.wear.compose:compose-foundation:1.5.6")
+
+    // Wear OS preview annotations
+    implementation("androidx.wear.compose:compose-ui-tooling:1.5.6")
+
+    // If you are using Compose Navigation, use the Wear OS version (NOT THE MOBILE VERSION).
+    // Uncomment the line below and update the version number.
+    // implementation("androidx.wear.compose:compose-navigation:1.5.6")
+
+    // Testing
+    testImplementation("junit:junit:4.13.2")
+    androidTestImplementation("androidx.test.ext:junit:1.1.3")
+    androidTestImplementation("androidx.test.espresso:espresso-core:3.4.0")
+    androidTestImplementation("androidx.compose.ui:ui-test-junit4:1.0.3")
+    debugImplementation("androidx.compose.ui:ui-tooling:1.4.1")
 }
