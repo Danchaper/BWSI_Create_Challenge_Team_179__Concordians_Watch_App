@@ -42,6 +42,7 @@ android {
 }
 
 dependencies {
+    implementation("androidx.compose.material3:material3:1.2.1")
     implementation(libs.play.services.wearable)
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.compose.ui)

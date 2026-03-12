@@ -27,6 +27,7 @@ import androidx.wear.tooling.preview.devices.WearDevices
 import com.example.bwsicreatechallenge179_watchapp.R
 import com.example.bwsicreatechallenge179_watchapp.presentation.theme.BWSICreateChallenge179WatchAppTheme
 import android.R.attr
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -35,6 +36,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.res.painterResource
 import androidx.wear.compose.material.Icon
 import androidx.wear.compose.material3.IconButton
+
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -78,14 +83,34 @@ fun Greeting(greetingName: String) {
 @Preview(device = WearDevices.SMALL_ROUND, showSystemUi = true)
 @Composable
 fun TimerText() {
-    var currentTime = "00:00:00"
-    Box {
-        val modifier = Modifier.fillMaxSize()
-        val contentAlignment = Alignment.Center
+    BWSICreateChallenge179WatchAppTheme {
+        var hrs = 20
+        var mins = 3
+        var secs = 0
+//        var timeInts = arrayOf(hrs, mins, secs)
+        var hrsText = "00"
+        var minsText = "00"
+        var secsText = "00"
+//        var timeStrs = arrayOf(hrsText, minsText, secsText)
+        var currentTime = mutableMapOf(hrs to hrsText, mins to minsText, secs to secsText)
+        for (key in currentTime.keys) {
+            if (key < 10) {
+                currentTime[key] = "0$key"
+            } else {
+                currentTime[key] = "$key"
+            }
+        }
+        var currentTimeText = "${hrsText}:${minsText}:${secsText}"
+
+        currentTimeText = "${hrsText}:${minsText}:${secsText}"
+    Box (modifier = Modifier.fillMaxSize(),
+        contentAlignment = Alignment.Center
+    ) {
         Row {
-            Text(currentTime)
+            Text(currentTimeText)
         }
     }
+        }
 }
 @Composable
 fun ToggleIconButtonExample() {
