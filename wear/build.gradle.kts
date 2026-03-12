@@ -42,6 +42,7 @@ android {
 }
 
 dependencies {
+    implementation("androidx.wear.compose:compose-material:1.3.0")
     implementation("androidx.compose.material3:material3:1.2.1")
     implementation(libs.play.services.wearable)
     implementation(platform(libs.androidx.compose.bom))
@@ -53,6 +54,7 @@ dependencies {
     implementation(libs.androidx.wear.tooling.preview)
     implementation(libs.androidx.activity.compose)
     implementation(libs.androidx.core.splashscreen)
+    implementation(libs.androidx.compose.foundation.layout)
     androidTestImplementation(platform(libs.androidx.compose.bom))
     androidTestImplementation(libs.androidx.compose.ui.test.junit4)
     debugImplementation(libs.androidx.compose.ui.tooling)
