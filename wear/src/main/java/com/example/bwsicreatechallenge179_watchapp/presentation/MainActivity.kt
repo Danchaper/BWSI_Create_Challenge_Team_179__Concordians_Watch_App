@@ -19,6 +19,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
@@ -40,35 +41,24 @@ class MainActivity : ComponentActivity() {
         setTheme(android.R.style.Theme_DeviceDefault)
 
         setContent {
-            WearApp("Android")
+            TimerApp()
         }
     }
 }
 
-@Composable
-fun WearApp(greetingName: String) {
-    BWSICreateChallenge179WatchAppTheme {
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(MaterialTheme.colors.background),
-            contentAlignment = Alignment.Center
-        ) {
-            TimeText()
-            Greeting(greetingName)
-        }
-    }
-}
-
-@Composable
-fun Greeting(greetingName: String) {
-    Text(
-        modifier = Modifier.fillMaxWidth(),
-        textAlign = TextAlign.Center,
-        color = MaterialTheme.colors.primary,
-        text = stringResource(R.string.hello_world, greetingName)
-    )
-}
+//@Composable
+//fun WearApp(greetingName: String) {
+//    BWSICreateChallenge179WatchAppTheme {
+//        Box(
+//            modifier = Modifier
+//                .fillMaxSize()
+//                .background(MaterialTheme.colors.background),
+//            contentAlignment = Alignment.Center
+//        ) {
+//            TimeText()
+//        }
+//    }
+//}
 
 @Composable
 fun ToggleIconButtonExample(modifier: Modifier = Modifier) {
@@ -78,10 +68,19 @@ fun ToggleIconButtonExample(modifier: Modifier = Modifier) {
         modifier = modifier,
         onClick = { isToggled = !isToggled }
     ) {
-        Icon(
-            painter = painterResource(R.drawable.play_button),
-            contentDescription = "Play button"
-        )
+        if (!isToggled) {
+            Icon(
+                painter = painterResource(R.drawable.play_button),
+                contentDescription = "Play button",
+                tint = Color.Unspecified
+            )
+        } else {
+            Icon(
+                painter = painterResource(R.drawable.pause_button),
+                contentDescription = "Play button",
+                tint = Color.Unspecified
+            )
+        }
     }
 }
 
@@ -103,7 +102,7 @@ fun TimerText(modifier: Modifier = Modifier) {
 
 @Preview(device = WearDevices.SMALL_ROUND, showSystemUi = true)
 @Composable
-fun Previewing() {
+fun TimerApp() {
     BWSICreateChallenge179WatchAppTheme {
         BoxWithConstraints(
             modifier = Modifier.fillMaxSize()
@@ -113,7 +112,9 @@ fun Previewing() {
 
             // Center timer text
             TimerText(
-                modifier = Modifier.align(Alignment.Center)
+                modifier = Modifier
+                    .align(Alignment.Center)
+//                    .size(size = 120.dp)
             )
 
             // Bottom-center button, fully visible
@@ -130,8 +131,3 @@ fun Previewing() {
     }
 }
 
-
-@Composable
-fun DefaultPreview() {
-    WearApp("dan")
-}
