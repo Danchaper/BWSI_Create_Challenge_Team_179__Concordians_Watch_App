@@ -10,7 +10,7 @@ android {
     }
 
     defaultConfig {
-        applicationId = "com.example.bwsicreatechallenge179_watchapp"
+        applicationId = "com.example.bwsicreatechallenge179_watchapp.mobile"
         minSdk = 30
         targetSdk = 36
         versionCode = 1
@@ -40,7 +40,7 @@ android {
 dependencies {
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
-    implementation(libs.play.services.wearable)
+//    implementation(libs.play.services.wearable)
     implementation(libs.material)
     implementation(libs.androidx.activity)
     implementation(libs.androidx.constraintlayout)

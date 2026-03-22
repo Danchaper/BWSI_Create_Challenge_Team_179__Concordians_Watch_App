@@ -11,7 +11,7 @@ android {
     }
 
     defaultConfig {
-        applicationId = "com.example.bwsicreatechallenge179_watchapp"
+        applicationId = "com.example.bwsicreatechallenge179_watchapp.wear"
         minSdk = 30
         targetSdk = 36
         versionCode = 1
@@ -42,14 +42,14 @@ android {
 }
 
 dependencies {
-    implementation("androidx.wear.compose:compose-material:1.3.0")
-    implementation("androidx.compose.material3:material3:1.2.1")
+    implementation(libs.wear.compose.material)
+//    implementation(libs.androidx.compose.material3)
     implementation(libs.play.services.wearable)
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.compose.ui)
     implementation(libs.androidx.compose.ui.graphics)
     implementation(libs.androidx.compose.ui.tooling.preview)
-    implementation(libs.androidx.compose.material)
+//    implementation(libs.androidx.compose.material)
     implementation(libs.androidx.compose.foundation)
     implementation(libs.androidx.wear.tooling.preview)
     implementation(libs.androidx.activity.compose)
