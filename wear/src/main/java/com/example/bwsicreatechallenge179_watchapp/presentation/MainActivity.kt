@@ -15,7 +15,6 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.foundation.gestures.snapping.rememberSnapFlingBehavior
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -81,8 +80,15 @@ fun TimeRow(time: Int, isSelected: Boolean) {
             MaterialTheme.typography.bodyMedium    // ✅ FIXED
     )
 }
+//
+//@Composable
+//fun TaskTextField() {
+//    TextField(
+//        state = rememberTextFieldState(initialText = "Hello"),
+//        label = { Text("Label") }
+//    )
+//}
 
-// Snap-to-center Picker
 @Composable
 fun TimePicker(
     range: IntRange,
@@ -90,8 +96,15 @@ fun TimePicker(
     onSelectedChange: (Int) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val listState = rememberLazyListState(initialFirstVisibleItemIndex = selected)
-    val flingBehavior = rememberSnapFlingBehavior(listState)
+    val items = range.toList()
+    val paddingCount = 1  // phantom items above and below
+    val totalItems = paddingCount + items.size + paddingCount
+    val listState = rememberLazyListState()
+
+    // Scroll so the selected item starts centered
+    LaunchedEffect(Unit) {
+        listState.scrollToItem(paddingCount + (selected - range.first))
+    }
 
     LaunchedEffect(listState) {
         snapshotFlow { listState.layoutInfo }
@@ -100,21 +113,31 @@ fun TimePicker(
                 val closest = layoutInfo.visibleItemsInfo.minByOrNull {
                     kotlin.math.abs((it.offset + it.size / 2) - center)
                 }
-                closest?.index?.let { index ->
-                    if (index in range) onSelectedChange(index)
+                closest?.let { item ->
+                    val realIndex = item.index - paddingCount
+                    if (realIndex in items.indices) {
+                        onSelectedChange(items[realIndex])
+                    }
                 }
             }
     }
 
     LazyColumn(
         state = listState,
-        flingBehavior = flingBehavior,
         modifier = modifier.height(120.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        contentPadding = PaddingValues(vertical = 40.dp)
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        items(range.count()) { index ->
-            TimeRow(time = index, isSelected = index == selected)
+        // Top padding phantom items
+        items(paddingCount) {
+            Box(modifier = Modifier.fillMaxWidth().height(40.dp))
+        }
+        // Real items
+        items(items.size) { idx ->
+            TimeRow(time = items[idx], isSelected = items[idx] == selected)
+        }
+        // Bottom padding phantom items
+        items(paddingCount) {
+            Box(modifier = Modifier.fillMaxWidth().height(40.dp))
         }
     }
 }
