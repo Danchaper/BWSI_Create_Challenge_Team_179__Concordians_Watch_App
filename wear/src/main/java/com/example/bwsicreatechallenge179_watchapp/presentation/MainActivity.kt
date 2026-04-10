@@ -1,33 +1,60 @@
+@file:Suppress("DEPRECATION")
+
 package com.example.bwsicreatechallenge179_watchapp.presentation
+
+// ✅ ONLY Material3 imports
 
 import android.content.Context
 import android.media.AudioManager
 import android.media.ToneGenerator
-import android.os.Build
 import android.os.Bundle
 import android.os.VibrationEffect
 import android.os.Vibrator
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.runtime.*
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.text.input.KeyboardActionHandler
+import androidx.compose.foundation.text.input.rememberTextFieldState
+import androidx.compose.material3.TextField
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-
-// ✅ ONLY Material3 imports
-import androidx.wear.compose.material3.*
-
+import androidx.compose.ui.unit.sp
+import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
+import androidx.wear.compose.material3.Icon
+import androidx.wear.compose.material3.IconButton
+import androidx.wear.compose.material3.MaterialTheme
+import androidx.wear.compose.material3.Text
 import androidx.wear.tooling.preview.devices.WearDevices
 import com.example.bwsicreatechallenge179_watchapp.R
 import com.example.bwsicreatechallenge179_watchapp.presentation.theme.BWSICreateChallenge179WatchAppTheme
@@ -80,14 +107,31 @@ fun TimeRow(time: Int, isSelected: Boolean) {
             MaterialTheme.typography.bodyMedium    // ✅ FIXED
     )
 }
-//
-//@Composable
-//fun TaskTextField() {
-//    TextField(
-//        state = rememberTextFieldState(initialText = "Hello"),
-//        label = { Text("Label") }
-//    )
-//}
+
+@Composable
+fun TaskTextField() {
+    val focusManager = LocalFocusManager.current
+    TextField(
+        textStyle = TextStyle(
+            fontSize = 10.sp,
+            textAlign = TextAlign.Center
+        ),
+        state = rememberTextFieldState(initialText = "What are you working on?"),
+        keyboardOptions = KeyboardOptions(
+            imeAction = ImeAction.Done
+        ),
+        onKeyboardAction = KeyboardActionHandler {
+            focusManager.clearFocus()
+        },
+        label = {
+            Text(
+                text = "",
+                modifier = Modifier.padding(vertical = 6.dp),
+                fontSize = 10.sp,
+            )
+        }
+    )
+}
 
 @Composable
 fun TimePicker(
@@ -98,7 +142,7 @@ fun TimePicker(
 ) {
     val items = range.toList()
     val paddingCount = 1  // phantom items above and below
-    val totalItems = paddingCount + items.size + paddingCount
+//    val totalItems = paddingCount + items.size + paddingCount
     val listState = rememberLazyListState()
 
     // Scroll so the selected item starts centered
@@ -167,17 +211,15 @@ fun TimerApp() {
                 isRunning = false
 
                 val vibrator = context.getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                    vibrator.vibrate(
-                        VibrationEffect.createOneShot(500, VibrationEffect.DEFAULT_AMPLITUDE)
-                    )
-                } else vibrator.vibrate(500)
+                vibrator.vibrate(
+                    VibrationEffect.createOneShot(500, VibrationEffect.DEFAULT_AMPLITUDE)
+                )
 
                 val toneGen = ToneGenerator(AudioManager.STREAM_ALARM, 100)
                 toneGen.startTone(ToneGenerator.TONE_CDMA_ALERT_CALL_GUARD, 1000)
             }
         }
-
+        if (!showPicker) { TaskTextField() }
         BoxWithConstraints(modifier = Modifier.fillMaxSize()) {
             val radius = maxWidth.coerceAtMost(maxHeight) / 2f
 
@@ -206,14 +248,16 @@ fun TimerApp() {
                 }
             }
 
-            ToggleIconButton(
-                isRunning = isRunning,
-                onToggle = { isRunning = !isRunning },
-                modifier = Modifier
-                    .align(Alignment.BottomCenter)
-                    .padding(bottom = radius * 0.15f)
-                    .size(radius * 0.4f)
-            )
+            if (!showPicker) {
+                ToggleIconButton(
+                    isRunning = isRunning,
+                    onToggle = { isRunning = !isRunning },
+                    modifier = Modifier
+                        .align(Alignment.BottomCenter)
+                        .padding(bottom = radius * 0.15f)
+                        .size(radius * 0.4f)
+                )
+            }
         }
     }
 }
