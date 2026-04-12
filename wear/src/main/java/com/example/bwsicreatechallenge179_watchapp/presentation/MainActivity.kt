@@ -2,14 +2,15 @@
 
 package com.example.bwsicreatechallenge179_watchapp.presentation
 
-// ✅ ONLY Material3 imports
-
+import android.app.NotificationManager
 import android.content.Context
+import android.content.Intent
 import android.media.AudioManager
 import android.media.ToneGenerator
 import android.os.Bundle
 import android.os.VibrationEffect
 import android.os.Vibrator
+import android.provider.Settings
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.clickable
@@ -28,8 +29,13 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.text.input.KeyboardActionHandler
+import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.foundation.text.input.rememberTextFieldState
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Notifications
+import androidx.compose.material.icons.filled.NotificationsOff
 import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -51,6 +57,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
+import androidx.wear.compose.material3.ButtonDefaults
+import androidx.wear.compose.material3.CompactButton
 import androidx.wear.compose.material3.Icon
 import androidx.wear.compose.material3.IconButton
 import androidx.wear.compose.material3.MaterialTheme
@@ -70,64 +78,113 @@ class MainActivity : ComponentActivity() {
     }
 }
 
-// Play/Pause Button
 @Composable
-fun ToggleIconButton(
+fun WatchButtons(
     isRunning: Boolean,
     onToggle: () -> Unit,
+    onAddMinute: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    IconButton(
-        onClick = onToggle,
-        modifier = modifier
-    ) {
-        Icon(
-            painter = painterResource(
-                if (!isRunning) R.drawable.play_button else R.drawable.pause_button
+    val context = LocalContext.current
+    val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+    var isDnd by remember { mutableStateOf(notificationManager.currentInterruptionFilter == NotificationManager.INTERRUPTION_FILTER_NONE) }
+
+    Box(contentAlignment = Alignment.Center) {
+        IconButton(
+            onClick = onToggle,
+            modifier = modifier
+        ) {
+            Icon(
+                painter = painterResource(
+                    if (!isRunning) R.drawable.play_button else R.drawable.pause_button
+                ),
+                contentDescription = "toggle",
+                tint = Color.Unspecified
+            )
+        }
+        CompactButton(
+            onClick = onAddMinute,
+            colors = ButtonDefaults.buttonColors(
+                containerColor = Color.DarkGray,
+                contentColor = Color.White
             ),
-            contentDescription = "toggle",
-            tint = Color.Unspecified
-        )
+            modifier = Modifier
+                .align(Alignment.CenterEnd)
+                .padding(start = 94.dp)
+        ) {
+            Text("+1m", fontSize = 8.sp)
+        }
+        CompactButton(
+            onClick = {
+                isDnd = !isDnd
+                try {
+                    notificationManager.setInterruptionFilter(
+                        if (isDnd) NotificationManager.INTERRUPTION_FILTER_NONE
+                        else NotificationManager.INTERRUPTION_FILTER_ALL
+                    )
+                } catch (e: Exception) {
+                    // silently fail on emulator
+                }
+            },
+            colors = ButtonDefaults.buttonColors(
+                containerColor = if (isDnd) Color.Red else Color.DarkGray,
+                contentColor = Color.White
+            ),
+            modifier = Modifier
+                .align(Alignment.CenterStart)
+                .padding(end = 64.dp)
+        ) {
+            Icon(
+                imageVector = if (isDnd) Icons.Default.NotificationsOff else Icons.Default.Notifications,
+                contentDescription = if (isDnd) "DND on" else "DND off",
+                modifier = Modifier.size(16.dp)
+            )
+        }
     }
 }
 
-// Row for Picker
 @Composable
 fun TimeRow(time: Int, isSelected: Boolean) {
     Text(
-        text = "%02d".format(time),
+        text = time.toString().padStart(2, '0'),
         modifier = Modifier
             .fillMaxWidth()
             .padding(vertical = 6.dp),
         textAlign = TextAlign.Center,
         color = if (isSelected) Color.White else Color.Gray,
         style = if (isSelected)
-            MaterialTheme.typography.titleMedium   // ✅ FIXED
+            MaterialTheme.typography.titleMedium
         else
-            MaterialTheme.typography.bodyMedium    // ✅ FIXED
+            MaterialTheme.typography.bodyMedium
     )
 }
 
 @Composable
-fun TaskTextField() {
+fun TaskTextField(state: TextFieldState) {
     val focusManager = LocalFocusManager.current
     TextField(
         textStyle = TextStyle(
             fontSize = 10.sp,
-            textAlign = TextAlign.Center
+            textAlign = TextAlign.Center,
+            color = Color.White
         ),
-        state = rememberTextFieldState(initialText = "What are you working on?"),
-        keyboardOptions = KeyboardOptions(
-            imeAction = ImeAction.Done
+        colors = TextFieldDefaults.colors(
+            unfocusedContainerColor = Color.Transparent,
+            focusedContainerColor = Color.Transparent,
+            unfocusedIndicatorColor = Color.Transparent,
+            focusedIndicatorColor = Color.Transparent,
+            unfocusedTextColor = Color.White,
+            focusedTextColor = Color.White,
         ),
-        onKeyboardAction = KeyboardActionHandler {
-            focusManager.clearFocus()
-        },
+        state = state,
+        keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
+        onKeyboardAction = KeyboardActionHandler { focusManager.clearFocus() },
         label = {
             Text(
                 text = "",
                 modifier = Modifier.padding(vertical = 6.dp),
                 fontSize = 10.sp,
+                color = Color.White
             )
         }
     )
@@ -141,18 +198,26 @@ fun TimePicker(
     modifier: Modifier = Modifier
 ) {
     val items = range.toList()
-    val paddingCount = 1  // phantom items above and below
-//    val totalItems = paddingCount + items.size + paddingCount
+    val paddingCount = 1
     val listState = rememberLazyListState()
+    var userHasScrolled by remember { mutableStateOf(false) }
 
-    // Scroll so the selected item starts centered
     LaunchedEffect(Unit) {
+        delay(150)
         listState.scrollToItem(paddingCount + (selected - range.first))
+    }
+
+    LaunchedEffect(listState) {
+        snapshotFlow { listState.isScrollInProgress }
+            .collect { scrolling ->
+                if (scrolling) userHasScrolled = true
+            }
     }
 
     LaunchedEffect(listState) {
         snapshotFlow { listState.layoutInfo }
             .collectLatest { layoutInfo ->
+                if (!userHasScrolled) return@collectLatest
                 val center = layoutInfo.viewportEndOffset / 2
                 val closest = layoutInfo.visibleItemsInfo.minByOrNull {
                     kotlin.math.abs((it.offset + it.size / 2) - center)
@@ -171,22 +236,18 @@ fun TimePicker(
         modifier = modifier.height(120.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        // Top padding phantom items
         items(paddingCount) {
             Box(modifier = Modifier.fillMaxWidth().height(40.dp))
         }
-        // Real items
         items(items.size) { idx ->
             TimeRow(time = items[idx], isSelected = items[idx] == selected)
         }
-        // Bottom padding phantom items
         items(paddingCount) {
             Box(modifier = Modifier.fillMaxWidth().height(40.dp))
         }
     }
 }
 
-// MAIN APP
 @Preview(device = WearDevices.SMALL_ROUND, showSystemUi = true)
 @Composable
 fun TimerApp() {
@@ -197,6 +258,7 @@ fun TimerApp() {
         var secs by remember { mutableIntStateOf(0) }
         var showPicker by remember { mutableStateOf(false) }
         var isRunning by remember { mutableStateOf(false) }
+        val taskState = rememberTextFieldState(initialText = "What are you working on?")
 
         LaunchedEffect(isRunning) {
             while (isRunning && (hrs > 0 || mins > 0 || secs > 0)) {
@@ -212,14 +274,19 @@ fun TimerApp() {
 
                 val vibrator = context.getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
                 vibrator.vibrate(
-                    VibrationEffect.createOneShot(500, VibrationEffect.DEFAULT_AMPLITUDE)
+                    VibrationEffect.createWaveform(
+                        longArrayOf(0, 300, 200, 300, 200, 300),
+                        -1
+                    )
                 )
 
                 val toneGen = ToneGenerator(AudioManager.STREAM_ALARM, 100)
                 toneGen.startTone(ToneGenerator.TONE_CDMA_ALERT_CALL_GUARD, 1000)
             }
         }
-        if (!showPicker) { TaskTextField() }
+
+        if (!showPicker) { TaskTextField(state = taskState) }
+
         BoxWithConstraints(modifier = Modifier.fillMaxSize()) {
             val radius = maxWidth.coerceAtMost(maxHeight) / 2f
 
@@ -230,7 +297,7 @@ fun TimerApp() {
                 Text(
                     text = "%02d:%02d:%02d".format(hrs, mins, secs),
                     textAlign = TextAlign.Center,
-                    color = MaterialTheme.colorScheme.primary, // ✅ FIXED
+                    color = MaterialTheme.colorScheme.primary,
                     modifier = Modifier.clickable { if (!isRunning) showPicker = !showPicker }
                 )
 
@@ -246,17 +313,18 @@ fun TimerApp() {
                         TimePicker(0..59, secs, { secs = it }, Modifier.weight(1f))
                     }
                 }
-            }
 
-            if (!showPicker) {
-                ToggleIconButton(
-                    isRunning = isRunning,
-                    onToggle = { isRunning = !isRunning },
-                    modifier = Modifier
-                        .align(Alignment.BottomCenter)
-                        .padding(bottom = radius * 0.15f)
-                        .size(radius * 0.4f)
-                )
+                if (!showPicker) {
+                    WatchButtons(
+                        isRunning = isRunning,
+                        onToggle = { isRunning = !isRunning },
+                        onAddMinute = {
+                            if (mins < 59) mins++
+                            else if (hrs < 23) { hrs++; mins = 0 }
+                        },
+                        modifier = Modifier.size(radius * 0.4f)
+                    )
+                }
             }
         }
     }

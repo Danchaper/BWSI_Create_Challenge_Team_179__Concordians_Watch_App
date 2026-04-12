@@ -2,7 +2,7 @@
 
     <!-- Declare watch feature as optional to avoid installation issues on non-watch devices -->
     <uses-feature android:name="android.hardware.type.watch" android:required="true"/>
-
+    <uses-permission android:name="android.permission.ACCESS_NOTIFICATION_POLICY"/>
     <uses-permission android:name="android.permission.WAKE_LOCK" />
     <uses-permission android:name="android.permission.VIBRATE"/>
     <application

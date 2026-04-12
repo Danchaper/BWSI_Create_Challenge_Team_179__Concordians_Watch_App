@@ -42,6 +42,7 @@ android {
 }
 
 dependencies {
+
     implementation(libs.wear.compose.material)
 //    implementation(libs.androidx.compose.material3)
     implementation(libs.play.services.wearable)
@@ -70,7 +71,7 @@ dependencies {
 
     // Compose for Wear OS dependencies
     implementation("androidx.wear.compose:compose-material3:1.5.6")
-
+    implementation("androidx.compose.material:material-icons-extended")
     // Foundation is additive, so you can use the mobile version in your Wear OS app.
     implementation("androidx.wear.compose:compose-foundation:1.5.6")
 
