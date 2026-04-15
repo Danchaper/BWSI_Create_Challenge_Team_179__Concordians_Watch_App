@@ -16,7 +16,8 @@ The app is not yet published to Google Play Store, so it must be downloaded and 
 ### 1. Clone the repo
 ```bash
 git clone https://github.com/Danchaper/BWSI_Create_Challenge_Team_179__Concordians_Watch_App.git
-cd BWSI_Create_Challenge_Team_179__Concordians_Watch_App```
+cd BWSI_Create_Challenge_Team_179__Concordians_Watch_App
+```
 ### 2. Open in Android Studio
 Open the project in Android Studio and let Gradle sync finish.
 
