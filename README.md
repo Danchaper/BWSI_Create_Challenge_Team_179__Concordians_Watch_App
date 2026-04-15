@@ -1,6 +1,6 @@
 # MIT BWSI CRE[AT]E Project Team 179 - Concordians
 ## WearOS Watch App Overview
-This watch app was created in collaboration with ...
+This watch app was created by Daniel Peregudov, Henry Lei, and Sarah Ye. 
 
 The purpose of the watch app is to help people with ADHD focus on one task at a time.
 It's main features are a focus timer with an editable text field for which the time can be chosen in hours, minutes, and seconds and that uses haptic vibrations and sound to alert the user it has ended,
